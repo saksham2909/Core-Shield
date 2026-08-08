@@ -51,3 +51,26 @@ Keeping generated files inside the build directory keeps the source tree clean a
 - Token Bucket
 - Logging
 - Analytics
+
+## Design Decisions
+
+### Public API
+
+CoreShield exposes a RateLimiter class instead of algorithm-specific classes.
+
+Current API:
+
+RateLimiter(maxRequests, windowSize)
+
+Reason:
+- Stable public interface.
+- Internal algorithm can change later.
+
+---
+
+### Current Scope
+
+- Single User
+- Sliding Window (next milestone)
+- No Factory
+- No Multi-user support

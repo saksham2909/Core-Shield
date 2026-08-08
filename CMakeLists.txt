@@ -2,4 +2,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(CoreShield)
 set(CMAKE_CXX_STANDARD 17)
-add_executable(CoreShieldDemo examples/hello.cpp)
+include_directories(include)
+
+add_executable(
+    CoreShieldDemo
+    examples/hello.cpp
+    src/RateLimiter.cpp
+    src/SlidingWindow.cpp
+    src/FixedWindow.cpp
+    src/RateLimitStrategyFactory.cpp
+)

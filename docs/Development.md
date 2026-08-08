@@ -35,3 +35,15 @@ Installed Ninja and configured CMake to use the Ninja generator.
 ### Next Milestone
 
 Design the CoreShield architecture.
+
+## Milestone 2 - RateLimiter Skeleton
+
+### Completed
+- Added RateLimiter class.
+- Added configurable constructor (maxRequests, windowSize).
+- Added allowRequest() public API.
+- Verified library builds successfully.
+- Verified example application uses RateLimiter.
+
+### Next
+- Implement Sliding Window algorithm (Single User).
