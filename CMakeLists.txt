@@ -11,4 +11,26 @@ add_executable(
     src/SlidingWindow.cpp
     src/FixedWindow.cpp
     src/RateLimitStrategyFactory.cpp
+    src/TokenBucket.cpp
+    src/AlgorithmSelector.cpp
+)
+
+add_executable(CoreShieldTests
+    tests/RateLimiterTests.cpp
+    src/RateLimiter.cpp
+    src/SlidingWindow.cpp
+    src/FixedWindow.cpp
+    src/TokenBucket.cpp
+    src/RateLimitStrategyFactory.cpp
+    src/AlgorithmSelector.cpp
+)
+
+add_executable(CoreShieldBenchmark
+    tests/Benchmark.cpp
+    src/RateLimiter.cpp
+    src/SlidingWindow.cpp
+    src/FixedWindow.cpp
+    src/TokenBucket.cpp
+    src/RateLimitStrategyFactory.cpp
+    src/AlgorithmSelector.cpp
 )

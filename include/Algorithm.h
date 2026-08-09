@@ -3,5 +3,6 @@
 enum class Algorithm
 {
     SlidingWindow,
-    FixedWindow
+    FixedWindow,
+    TokenBucket
 };
