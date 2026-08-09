@@ -32,5 +32,5 @@ add_executable(CoreShieldBenchmark
     src/FixedWindow.cpp
     src/TokenBucket.cpp
     src/RateLimitStrategyFactory.cpp
-    
+    src/AlgorithmSelector.cpp
 )
