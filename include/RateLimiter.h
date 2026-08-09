@@ -3,6 +3,7 @@
 #include <string>
 #include "1_RateLimitStrategy.h"
 #include "Algorithm.h"
+#include <mutex>
 
 class RateLimiter
 {
@@ -12,6 +13,7 @@ private:
     int totalRequests;
     int allowedRequests;
     int rejectedRequests;
+    mutable std::mutex metricsMutex;
 
 public:
     RateLimiter(Algorithm algorithm, int maxRequests, int windowSize);

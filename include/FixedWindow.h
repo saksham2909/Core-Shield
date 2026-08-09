@@ -1,8 +1,9 @@
 #pragma once
 
-#include "1_RateLimitStrategy.h"
+#include <string>
 #include <unordered_map>
-#include <chrono>
+#include <mutex>
+#include "1_RateLimitStrategy.h"
 
 class FixedWindow : public IRateLimitStrategy
 {
@@ -16,7 +17,8 @@ private:
         int requestCount;
     };
 
-    std::unordered_map<std::string, Window> users;
+    std::unordered_map<std::string, Window> windows;
+    std::mutex mutex;
 
 public:
     FixedWindow(int maxRequests, int windowSize);

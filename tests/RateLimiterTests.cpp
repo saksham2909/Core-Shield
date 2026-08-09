@@ -1,6 +1,28 @@
 #include <cassert>
 #include "RateLimiter.h"
 #include "AlgorithmSelector.h"
+#include <thread>
+#include <vector>
+void testConcurrentRequests()
+{
+    RateLimiter limiter(Algorithm::FixedWindow, 1000, 60);
+
+    std::vector<std::thread> threads;
+
+    for (int i = 0; i < 10; i++)
+    {
+        threads.emplace_back([&limiter]()
+        {
+            for (int j = 0; j < 100; j++)
+                limiter.allowRequest("user1");
+        });
+    }
+
+    for (auto& thread : threads)
+        thread.join();
+
+    assert(limiter.getTotalRequests() == 1000);
+}
 void testAlgorithmSelector()
 {
     assert(
@@ -56,6 +78,37 @@ void testMultipleUsers()
     assert(limiter.allowRequest("user2"));
 }
 
+void testConcurrentAlgorithms()
+{
+    std::vector<Algorithm> algorithms =
+    {
+        Algorithm::SlidingWindow,
+        Algorithm::FixedWindow,
+        Algorithm::TokenBucket
+    };
+
+    for (Algorithm algorithm : algorithms)
+    {
+        RateLimiter limiter(algorithm, 1000, 60);
+
+        std::vector<std::thread> threads;
+
+        for (int i = 0; i < 10; i++)
+        {
+            threads.emplace_back([&limiter]()
+            {
+                for (int j = 0; j < 100; j++)
+                    limiter.allowRequest("user1");
+            });
+        }
+
+        for (auto& thread : threads)
+            thread.join();
+
+        assert(limiter.getTotalRequests() == 1000);
+    }
+}
+
 int main()
 {
     testSlidingWindow();
@@ -63,6 +116,8 @@ int main()
     testTokenBucket();
     testMultipleUsers();
     testAlgorithmSelector();
+    testConcurrentRequests();
+    testConcurrentAlgorithms();
 
     return 0;
 }

@@ -19,30 +19,35 @@ RateLimiter::RateLimiter(
 
 bool RateLimiter::allowRequest(const std::string& userId)
 {
+    bool allowed = strategy->allowRequest(userId);
+
+    std::lock_guard<std::mutex> lock(metricsMutex);
+
     totalRequests++;
 
-    if (strategy->allowRequest(userId))
-    {
+    if (allowed)
         allowedRequests++;
-        return true;
-    }
+    else
+        rejectedRequests++;
 
-    rejectedRequests++;
-    return false;
+    return allowed;
 }
 
 int RateLimiter::getTotalRequests() const
 {
+    std::lock_guard<std::mutex> lock(metricsMutex);
     return totalRequests;
 }
 
 int RateLimiter::getAllowedRequests() const
 {
+    std::lock_guard<std::mutex> lock(metricsMutex);
     return allowedRequests;
 }
 
 int RateLimiter::getRejectedRequests() const
 {
+    std::lock_guard<std::mutex> lock(metricsMutex);
     return rejectedRequests;
 }
 

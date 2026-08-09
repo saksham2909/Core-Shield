@@ -1,13 +1,17 @@
 #include "TokenBucket.h"
-
+#include <chrono>
+#include <algorithm>
 
 TokenBucket::TokenBucket(int capacity, double refillRate)
-    : capacity(capacity), refillRate(refillRate)
+    : capacity(capacity),
+      refillRate(refillRate)
 {
 }
 
 bool TokenBucket::allowRequest(const std::string& userId)
 {
+    std::lock_guard<std::mutex> lock(mutex);
+
     long long currentTime =
         std::chrono::duration_cast<std::chrono::seconds>(
             std::chrono::system_clock::now().time_since_epoch()
@@ -22,8 +26,9 @@ bool TokenBucket::allowRequest(const std::string& userId)
     }
 
     double elapsed = currentTime - bucket.lastRefill;
+
     bucket.tokens = std::min(
-        (double)capacity,
+        static_cast<double>(capacity),
         bucket.tokens + elapsed * refillRate
     );
 

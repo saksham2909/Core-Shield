@@ -1,9 +1,9 @@
 #pragma once
 
-#include "1_RateLimitStrategy.h"
+#include <string>
 #include <unordered_map>
-#include <chrono>
-#include <algorithm>
+#include <mutex>
+#include "1_RateLimitStrategy.h"
 
 class TokenBucket : public IRateLimitStrategy
 {
@@ -18,6 +18,7 @@ private:
     };
 
     std::unordered_map<std::string, Bucket> users;
+    std::mutex mutex;
 
 public:
     TokenBucket(int capacity, double refillRate);
