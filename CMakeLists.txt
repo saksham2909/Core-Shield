@@ -15,6 +15,16 @@ add_executable(
     src/AlgorithmSelector.cpp
 )
 
+add_executable(CoreShieldApiDemo
+    examples/api_demo.cpp
+    src/RateLimiter.cpp
+    src/SlidingWindow.cpp
+    src/FixedWindow.cpp
+    src/TokenBucket.cpp
+    src/RateLimitStrategyFactory.cpp
+    src/AlgorithmSelector.cpp
+)
+
 add_executable(CoreShieldTests
     tests/RateLimiterTests.cpp
     src/RateLimiter.cpp
