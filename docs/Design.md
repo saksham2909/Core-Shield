@@ -1,76 +1,65 @@
 # CoreShield Design
 
----
+## Objective
 
-## Project Vision
+CoreShield is designed as a modular rate limiting framework
+where different rate limiting algorithms can be used through
+a common interface.
 
-Build a reusable C++ request management framework.
+## Strategy Pattern
 
-The project should remain modular, maintainable, and easy to extend.
+All algorithms implement:
 
----
+`IRateLimitStrategy`
 
-## Initial Architecture
+Current strategies:
 
-Current project contains:
+- SlidingWindow
+- FixedWindow
+- TokenBucket
 
-- Source files
-- Header files
-- Documentation
-- Examples
-- Tests
+This allows algorithms to be changed without changing the
+main RateLimiter interface.
 
-Business logic has not been implemented yet.
+## Factory
 
----
+`RateLimitStrategyFactory` creates the required strategy based
+on the selected Algorithm.
 
-## Design Decisions
+This keeps object creation separate from RateLimiter.
 
-### Why CMake?
+## Algorithm Selection
 
-- Cross-platform
-- Industry standard
-- Simplifies builds
+`AlgorithmSelector` provides a simple policy for selecting
+an algorithm using request rate and rejection rate.
 
-### Why Ninja?
+The current policy is intentionally simple and can be extended
+in the future.
 
-- Lightweight
-- Fast
-- Works well with CMake
+## Metrics
 
-### Why Out-of-Source Build?
+RateLimiter maintains:
 
-Keeping generated files inside the build directory keeps the source tree clean and improves maintainability.
+- Total requests
+- Allowed requests
+- Rejected requests
 
----
+These metrics can later be exposed to monitoring systems.
 
-## Future Modules
+## Thread Safety
 
-- Sliding Window
-- Fixed Window
-- Token Bucket
-- Logging
-- Analytics
+Shared state inside RateLimiter and individual strategies is
+protected using mutexes.
 
-## Design Decisions
+Concurrent tests verify that multiple threads can use the
+rate limiter safely.
 
-### Public API
+## Design Goal
 
-CoreShield exposes a RateLimiter class instead of algorithm-specific classes.
+The project prioritizes:
 
-Current API:
-
-RateLimiter(maxRequests, windowSize)
-
-Reason:
-- Stable public interface.
-- Internal algorithm can change later.
-
----
-
-### Current Scope
-
-- Single User
-- Sliding Window (next milestone)
-- No Factory
-- No Multi-user support
+- Modularity
+- Reusability
+- Testability
+- Simple interfaces
+- Extensibility
