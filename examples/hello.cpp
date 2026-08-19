@@ -3,18 +3,15 @@
 
 int main()
 {
-    RateLimiter limiter(
-    Algorithm::TokenBucket,
-    3,
-    1
-);
+    RateLimiter limiter(Algorithm::SlidingWindow, 5, 60);
 
-    std::cout << limiter.allowRequest("user123") << "\n";
-    std::cout << limiter.allowRequest("user123") << "\n";
-    std::cout << limiter.allowRequest("user123") << "\n";
-    std::cout << limiter.allowRequest("user123") << "\n";
-    std::cout << limiter.allowRequest("user123") << "\n";
-
+    for (int i = 1; i <= 7; i++)
+    {
+        if (limiter.allowRequest("user1"))
+            std::cout << "Request " << i << " allowed\n";
+        else
+            std::cout << "Request " << i << " rejected\n";
+    }
 
     return 0;
 }
