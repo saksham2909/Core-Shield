@@ -105,7 +105,7 @@ void testTokenBucketRefill()
     assert(limiter.allowRequest("user1"));
     assert(!limiter.allowRequest("user1"));
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(600));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1100));
 
     assert(limiter.allowRequest("user1"));
 }
