@@ -45,3 +45,10 @@ Allow / Reject
      |
      v
 Metrics
+
+
+## Build
+
+```bash
+cmake -S . -B build -G Ninja
+cmake --build build
