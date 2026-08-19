@@ -2,31 +2,45 @@
 #include <chrono>
 
 SlidingWindow::SlidingWindow(int maxRequests, int windowSize)
-    : maxRequests(maxRequests),
-      windowSize(windowSize)
-{
+    : maxRequests(maxRequests), windowSize(windowSize) {}
+
+size_t SlidingWindow::shardIndex(const std::string& key) const {
+    return std::hash<std::string>{}(key) % NUM_SHARDS;
 }
 
-bool SlidingWindow::allowRequest(const std::string& userId)
-{
-    std::lock_guard<std::mutex> lock(mutex);
+void SlidingWindow::evictStale(int shardIdx, long long now) {
+    auto& map = shards[shardIdx];
 
-    auto now = std::chrono::duration_cast<std::chrono::seconds>(
-        std::chrono::system_clock::now().time_since_epoch()
-    ).count();
+    for (auto it = map.begin(); it != map.end();) {
+        if (now - it->second.lastAccess > STALE_AFTER_SECONDS)
+            it = map.erase(it);
+        else
+            ++it;
+    }
+}
 
-    auto& userRequests = requests[userId];
+bool SlidingWindow::allowRequest(const std::string& userId) {
+    long long now = std::chrono::duration_cast<std::chrono::seconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
 
-    while (!userRequests.empty() &&
-           now - userRequests.front() >= windowSize)
-    {
-        userRequests.pop_front();
+    size_t idx = shardIndex(userId);
+    std::lock_guard<std::mutex> lock(shardMutexes[idx]);
+
+    if (shards[idx].size() % 50 == 0 && !shards[idx].empty())
+        evictStale(idx, now);
+
+    auto& user = shards[idx][userId];
+    user.lastAccess = now;
+
+    while (!user.timestamps.empty() &&
+           now - user.timestamps.front() >= windowSize) {
+        user.timestamps.pop_front();
     }
 
-    if (userRequests.size() >= maxRequests)
+    if (static_cast<int>(user.timestamps.size()) >= maxRequests)
         return false;
 
-    userRequests.push_back(now);
+    user.timestamps.push_back(now);
 
     return true;
 }

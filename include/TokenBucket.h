@@ -1,27 +1,32 @@
 #pragma once
 
+#include "IRateLimitStrategy.h"
 #include <string>
 #include <unordered_map>
 #include <mutex>
-#include "1_RateLimitStrategy.h"
+#include <array>
 
-class TokenBucket : public IRateLimitStrategy
-{
+class TokenBucket : public IRateLimitStrategy {
+public:
+    TokenBucket(int maxRequests, int windowSize);
+    bool allowRequest(const std::string& userId) override;
+
 private:
-    int capacity;
-    double refillRate;
-
-    struct Bucket
-    {
-        double tokens;
-        long long lastRefill;
+    struct Bucket {
+        double tokens = 0;
+        long long lastRefill = 0;
+        long long lastAccess = 0;
     };
 
-    std::unordered_map<std::string, Bucket> users;
-    std::mutex mutex;
+    static const int NUM_SHARDS = 16;
+    static const long long STALE_AFTER_SECONDS = 300;
 
-public:
-    TokenBucket(int capacity, double refillRate);
+    int maxRequests;
+    int windowSize;
 
-    bool allowRequest(const std::string& userId) override;
+    std::array<std::unordered_map<std::string, Bucket>, NUM_SHARDS> shards;
+    std::array<std::mutex, NUM_SHARDS> shardMutexes;
+
+    size_t shardIndex(const std::string& key) const;
+    void evictStale(int shardIdx, long long now);
 };

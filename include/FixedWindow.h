@@ -1,27 +1,32 @@
 #pragma once
 
+#include "IRateLimitStrategy.h"
 #include <string>
 #include <unordered_map>
 #include <mutex>
-#include "1_RateLimitStrategy.h"
+#include <array>
 
-class FixedWindow : public IRateLimitStrategy
-{
+class FixedWindow : public IRateLimitStrategy {
+public:
+    FixedWindow(int maxRequests, int windowSize);
+    bool allowRequest(const std::string& userId) override;
+
 private:
+    struct Window {
+        long long startTime = 0;
+        int requestCount = 0;
+        long long lastAccess = 0;
+    };
+
+    static const int NUM_SHARDS = 16;
+    static const long long STALE_AFTER_SECONDS = 300;
+
     int maxRequests;
     int windowSize;
 
-    struct Window
-    {
-        long long startTime;
-        int requestCount;
-    };
+    std::array<std::unordered_map<std::string, Window>, NUM_SHARDS> shards;
+    std::array<std::mutex, NUM_SHARDS> shardMutexes;
 
-    std::unordered_map<std::string, Window> windows;
-    std::mutex mutex;
-
-public:
-    FixedWindow(int maxRequests, int windowSize);
-
-    bool allowRequest(const std::string& userId) override;
+    size_t shardIndex(const std::string& key) const;
+    void evictStale(int shardIdx, long long now);
 };

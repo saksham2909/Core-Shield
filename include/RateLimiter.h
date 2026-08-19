@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "1_RateLimitStrategy.h"
+#include "IRateLimitStrategy.h"
 #include "Algorithm.h"
 #include <mutex>
 
