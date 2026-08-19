@@ -1,7 +1,8 @@
-# BY THIS FILE , THE WAY OF COMPILING WHOLE CODE CHANGES , IT MAKES THE USUAL COMPILATION EASY.
 cmake_minimum_required(VERSION 3.16)
 project(CoreShield)
+
 set(CMAKE_CXX_STANDARD 17)
+
 include_directories(include)
 
 add_executable(
@@ -25,8 +26,6 @@ add_executable(CoreShieldApiDemo
     src/AlgorithmSelector.cpp
 )
 
-
-
 add_executable(CoreShieldTests
     tests/RateLimiterTests.cpp
     src/RateLimiter.cpp
@@ -45,4 +44,11 @@ add_executable(CoreShieldBenchmark
     src/TokenBucket.cpp
     src/RateLimitStrategyFactory.cpp
     src/AlgorithmSelector.cpp
+)
+
+enable_testing()
+
+add_test(
+    NAME CoreShieldUnitTests
+    COMMAND CoreShieldTests
 )

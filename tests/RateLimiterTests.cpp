@@ -3,6 +3,8 @@
 #include "AlgorithmSelector.h"
 #include <thread>
 #include <vector>
+#include <chrono>
+
 void testConcurrentRequests()
 {
     RateLimiter limiter(Algorithm::FixedWindow, 1000, 60);
@@ -23,6 +25,7 @@ void testConcurrentRequests()
 
     assert(limiter.getTotalRequests() == 1000);
 }
+
 void testAlgorithmSelector()
 {
     assert(
@@ -50,6 +53,19 @@ void testSlidingWindow()
     assert(!limiter.allowRequest("user1"));
 }
 
+void testSlidingWindowExpiry()
+{
+    RateLimiter limiter(Algorithm::SlidingWindow, 2, 1);
+
+    assert(limiter.allowRequest("user1"));
+    assert(limiter.allowRequest("user1"));
+    assert(!limiter.allowRequest("user1"));
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    assert(limiter.allowRequest("user1"));
+}
+
 void testFixedWindow()
 {
     RateLimiter limiter(Algorithm::FixedWindow, 2, 10);
@@ -59,6 +75,19 @@ void testFixedWindow()
     assert(!limiter.allowRequest("user1"));
 }
 
+void testFixedWindowReset()
+{
+    RateLimiter limiter(Algorithm::FixedWindow, 2, 1);
+
+    assert(limiter.allowRequest("user1"));
+    assert(limiter.allowRequest("user1"));
+    assert(!limiter.allowRequest("user1"));
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    assert(limiter.allowRequest("user1"));
+}
+
 void testTokenBucket()
 {
     RateLimiter limiter(Algorithm::TokenBucket, 2, 1);
@@ -66,6 +95,19 @@ void testTokenBucket()
     assert(limiter.allowRequest("user1"));
     assert(limiter.allowRequest("user1"));
     assert(!limiter.allowRequest("user1"));
+}
+
+void testTokenBucketRefill()
+{
+    RateLimiter limiter(Algorithm::TokenBucket, 2, 1);
+
+    assert(limiter.allowRequest("user1"));
+    assert(limiter.allowRequest("user1"));
+    assert(!limiter.allowRequest("user1"));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(600));
+
+    assert(limiter.allowRequest("user1"));
 }
 
 void testMultipleUsers()
@@ -112,8 +154,14 @@ void testConcurrentAlgorithms()
 int main()
 {
     testSlidingWindow();
+    testSlidingWindowExpiry();
+
     testFixedWindow();
+    testFixedWindowReset();
+
     testTokenBucket();
+    testTokenBucketRefill();
+
     testMultipleUsers();
     testAlgorithmSelector();
     testConcurrentRequests();
