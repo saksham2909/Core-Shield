@@ -71,3 +71,6 @@ Testing/
 # Ninja
 .ninja_deps
 .ninja_log
+coverage*.html 
+coverage.css 
+coverage.js 
